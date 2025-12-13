@@ -1,0 +1,44 @@
+#!/usr/bin/env python3
+
+import pandas as pd
+import csv
+import os
+import argparse
+
+parser = argparse.ArgumentParser(description="Find overlaps between ROH and genes")
+parser.add_argument('--tsv', required=True, help='tsv file name')
+parser.add_argument('--bed', required=True, help='bed file with gene locations')
+args = parser.parse_args()
+
+entry = args.tsv
+bed_file = args.bed
+output_dir = "."
+
+with open(entry) as df:
+    header = df.readline().strip().split()  # Read header
+    header.append("genes")
+
+with open(bed_file) as gb, open(entry) as rp, open(output_dir + "/" + "OL_" + entry, "w") as out:
+    writer = csv.writer(out, delimiter="\t")
+    writer.writerow(header)
+    next(rp)
+
+    for row in rp:
+        gb.seek(0)
+        rd = csv.reader(gb, delimiter="\t")
+        bed_genes = ""
+        row_plink = row.split()
+        row_plink[6] = int(row_plink[6])
+        row_plink[7] = int(row_plink[7])
+        interval_plink = pd.Interval(left=row_plink[6], right=row_plink[7])
+        for row_bed in rd:
+            if row_bed[0] != entry.replace(".tsv", ""):
+                continue
+            row_bed[1] = int(row_bed[1])
+            row_bed[2] = int(row_bed[2])
+            interval_bed = pd.Interval(left=row_bed[1], right=row_bed[2])
+            if interval_bed.overlaps(interval_plink):
+                bed_genes += row_bed[3] + " "
+        if bed_genes != "":
+            row_plink.append(bed_genes)
+        writer.writerow(row_plink)

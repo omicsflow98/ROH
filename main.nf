@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 include { dnaseq } from './subworkflows/dnaseq/dnaseq.nf'
-include { admixture } from './subworkflows/admixture/admixture.nf'
+include { ROH } from './subworkflows/ROH/ROH.nf'
 
 workflow {
 	
@@ -11,5 +11,5 @@ workflow {
         merged_vcf = file(params.vcf_file)
     }
 
-    admixture(merged_vcf)
+    ROH(merged_vcf)
 }
