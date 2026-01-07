@@ -2,8 +2,7 @@ process split_plink {
 
 	label 'split_plink'
 
-        publishDir "${params.outdir}/output/split_plink"
-	container "${params.apptainer}/python.sif"
+        publishDir "${params.main.outdir}/output/split_plink"
 
         input:
         path(split_script)

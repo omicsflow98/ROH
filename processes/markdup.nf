@@ -2,8 +2,8 @@ process markduplicates {
 
 	label 'markdup'
 
-        publishDir "${params.outdir}/output/markdup"
-		container "${params.apptainer}/gatk.sif"
+        publishDir "${params.main.outdir}/output/markdup"
+		container "${params.main.apptainer}/gatk.sif"
 
 		input:
 		path temp_dir

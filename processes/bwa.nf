@@ -2,8 +2,8 @@ process bwa {
 
 	label 'bwa'
 
-        publishDir "${params.outdir}/output/bwa"
-	container "${params.apptainer}/bwa.sif"
+        publishDir "${params.main.outdir}/output/bwa"
+	container "${params.main.apptainer}/bwa.sif"
 
         input:
         path bwa_index

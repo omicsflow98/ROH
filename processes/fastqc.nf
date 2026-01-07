@@ -2,8 +2,8 @@ process runfastqc {
         
         label 'fastqc'
        
-        publishDir "${params.outdir}/output/fastqc", mode: 'move'
-        container "${params.apptainer}/fastqc.sif"
+        publishDir "${params.main.outdir}/output/fastqc", mode: 'move'
+        container "${params.main.apptainer}/fastqc.sif"
 
         input:
         tuple val(sample_id), path(File1), path(File2), val(adapter1), val(adapter2), val(LibName), val(Barcode), val(Platform)

@@ -2,8 +2,8 @@ process gvcf {
 
 	label 'gvcf'
 
-        publishDir "${params.outdir}/output/gvcf/"
-	container "${params.apptainer}/gatk.sif"
+        publishDir "${params.main.outdir}/output/gvcf/"
+	container "${params.main.apptainer}/gatk.sif"
 
         input:
         path reference_dir
@@ -35,8 +35,8 @@ process mergedgvcf {
 
 	label 'gvcf_merge'
 
-        publishDir "${params.outdir}/output/gvcf_merged/"
-	container "${params.apptainer}/gatk.sif"
+        publishDir "${params.main.outdir}/output/gvcf_merged/"
+	container "${params.main.apptainer}/gatk.sif"
 
         input:
         path reference_dir

@@ -4,6 +4,7 @@ import pandas as pd
 import csv
 import os
 import argparse
+import re
 
 parser = argparse.ArgumentParser(description="Find overlaps between ROH and genes")
 parser.add_argument('--tsv', required=True, help='tsv file name')
@@ -32,7 +33,8 @@ with open(bed_file) as gb, open(entry) as rp, open(output_dir + "/" + "OL_" + en
         row_plink[7] = int(row_plink[7])
         interval_plink = pd.Interval(left=row_plink[6], right=row_plink[7])
         for row_bed in rd:
-            if row_bed[0] != entry.replace(".tsv", ""):
+            no_special = re.sub(r'[^A-Za-z0-9]', '', row_bed[0])
+            if no_special != entry.replace(".tsv", ""):
                 continue
             row_bed[1] = int(row_bed[1])
             row_bed[2] = int(row_bed[2])

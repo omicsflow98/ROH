@@ -2,32 +2,37 @@ process plink {
 
 	label 'plink'
 
-        publishDir "${params.outdir}/output/plink"
-	container "${params.apptainer}/plink.sif"
+        publishDir "${params.main.outdir}/output/plink"
 
         input:
         path(vcf_file)
+        val plink_map
+        val chrom
 
         output:
         path("plink.*"), emit: plink_files
         path("plink.hom"), emit: roh_file
+        val(chrom), emit: chromosome
+        tuple path("plink.map"), path("plink.ped"), emit: dr_files
 
         script:
         """
         plink \
         --vcf ${vcf_file} \
         --homozyg \
-        --homozyg-snp 100 \
-        --homozyg-kb 100 \
-        --homozyg-density 10 \
-        --homozyg-gap 1000 \
-        --homozyg-window-snp 100 \
-        --homozyg-window-het 1 \
-        --homozyg-window-missing 5 \
-        --homozyg-window-threshold 0.05 \
-        --homozyg-het 3 \
+        ${ plink_map.snp ? "--homozyg-snp ${plink_map.snp}" : "" } \
+        ${ plink_map.kb ? "--homozyg-kb ${plink_map.kb}" : "" } \
+        ${ plink_map.density ? "--homozyg-density ${plink_map.density}" : "" } \
+        ${ plink_map.gap ? "--homozyg-gap ${plink_map.gap}" : "" } \
+        ${ plink_map.windowsnp ? "--homozyg-window-snp ${plink_map.windowsnp}" : "" } \
+        ${ plink_map.WindowHet ? "--homozyg-window-het ${plink_map.WindowHet}" : "" } \
+        ${ plink_map.WindowMissing ? "--homozyg-window-missing ${plink_map.WindowMissing}" : "" } \
+        ${ plink_map.WindowThreshold ? "--homozyg-window-threshold ${plink_map.WindowThreshold}" : "" } \
+        ${ plink_map.HomozygHet ? "--homozyg-het ${plink_map.HomozygHet}" : "" } \
         --allow-extra-chr \
-        --threads 7 \
+        ${ chrom ? "--chr ${chrom}" : "" } \
+        --recode \
+        --threads 2 \
         --out plink
         
         """

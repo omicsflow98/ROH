@@ -9,7 +9,7 @@ include {BQSR} from '../../processes/bqsr.nf'
 workflow alignment {
 
 main:
-first_ch = Channel.fromPath(params.data_csv, checkIfExists: true)
+first_ch = Channel.fromPath(params.settings.setfile, checkIfExists: true)
 	| splitCsv(header: true, sep: '\t')
 	| map { row -> tuple(row.SampName,
 			file(row.File1),
@@ -20,14 +20,14 @@ first_ch = Channel.fromPath(params.data_csv, checkIfExists: true)
 			row.Barcode,
 			row.Platform) }
 
-bwa_index = file( "${params.reference}/index/bwa/genome.fa.{,amb,ann,bwt,pac,sa}" )
+bwa_index = file( "${params.settings.reference}/index/bwa/genome.fa.{,amb,ann,bwt,pac,sa}" )
 
 runfastqc(first_ch)
 
-if (params.trim) {
+if (params.settings.trim) {
 	trimmed_reads = trim_galore(first_ch)
 } else {
-	trimmed_reads = Channel.fromPath(params.data_csv, checkIfExists: true)
+	trimmed_reads = Channel.fromPath(params.settings.setfile, checkIfExists: true)
 	| splitCsv(header: true, sep: '\t')
 	| map { row -> tuple(row.SampName,
 			row.LibName,
@@ -39,10 +39,10 @@ if (params.trim) {
 
 bwa(bwa_index, trimmed_reads)
 
-markduplicates(params.temp_dir, bwa.out.bam_files)
+markduplicates(params.main.temp_dir, bwa.out.bam_files)
 
-if (params.recalibrate) {
-	BQSR(params.reference, params.temp_dir, markduplicates.out.mark_dup)
+if (params.settings.recalibrate) {
+	BQSR(params.settings.reference, params.main.temp_dir, markduplicates.out.mark_dup)
 	bam_files = BQSR.out.bam_bqsr
 } else {
 	bam_files = markduplicates.out.mark_dup

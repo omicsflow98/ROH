@@ -3,6 +3,7 @@
 import csv
 import os
 import argparse
+import re
 
 parser = argparse.ArgumentParser(description="Split PLINK ROH output by chromosome")
 parser.add_argument('--hom', required=True, help='Path to PLINK .hom file')
@@ -23,7 +24,8 @@ with open(data_file) as df:
 with open(chrom_file) as f:
     chromosomes = f.read().splitlines()
     for chrom in chromosomes:
-        with open(data_file) as df, open(output_dir + "/" + chrom + ".tsv", "w") as out:
+        name = re.sub(r'[^A-Za-z0-9]', '', chrom)
+        with open(data_file) as df, open(output_dir + "/" + name + ".tsv", "w") as out:
             writer = csv.writer(out, delimiter="\t")
             writer.writerow(header)
             next(df)

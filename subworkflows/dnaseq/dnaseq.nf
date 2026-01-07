@@ -7,11 +7,11 @@ workflow dnaseq {
 
 	main:
 
-	if (!params.start_vcf) {
+	if (!params.settings.start_vcf) {
 		alignment()
 		bam_files = alignment.out
 	} else {
-		bam_files = Channel.fromPath(params.data_csv, checkIfExists: true)
+		bam_files = Channel.fromPath(params.settings.setfile, checkIfExists: true)
 		| splitCsv(header: true, sep: '\t')
 		| map { row -> tuple(row.SampName,
 				file(row.File1)) 

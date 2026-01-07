@@ -2,8 +2,7 @@ process overlap {
 
 	label 'overlap'
 
-        publishDir "${params.outdir}/output/overlap"
-	container "${params.apptainer}/python.sif"
+        publishDir "${params.main.outdir}/output/overlap"
 
         input:
         path(overlap_script)
@@ -22,19 +21,39 @@ process overlap {
 
 process combine_overlap {
         
-        label 'overlap'
+        label 'combineoverlap'
 
-        publishDir "${params.outdir}/output/overlap"
+        publishDir "${params.main.outdir}/output/overlap"
 
         input:
         path(all_tsvs)
+        path(chroms)
 
         output:
-        path("merged.tsv")
+        path("merged.tsv"), emit: ROH_file
 
         script:
         """
-        awk 'FNR==1 && NR!=1 { next } { print }' *.tsv > merged.tsv
+        awk -F'\\t' '
+        NR==FNR {
+            order[++n] = \$1
+            next
+        }
+        FNR==1 {
+            header = \$0
+            next
+        }
+        {
+            rows[\$4] = rows[\$4] \$0 ORS
+        }
+        END {
+            print header
+            for (i=1; i<=n; i++) {
+                if (order[i] in rows)
+                    printf "%s", rows[order[i]]
+            }
+        }
+    ' ${chroms} ${all_tsvs} > merged.tsv
 
         """
 }
