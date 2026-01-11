@@ -2,6 +2,7 @@
 
 suppressMessages(library(tidyverse))
 suppressMessages(library(optparse))
+suppressMessages(library(yaml))
 
 CombineROH <- function(list1, list2) {
   list1 <- str_split(list1, ",")
@@ -18,7 +19,9 @@ CombineROH <- function(list1, list2) {
 
 option_list = list(
   make_option(c("-T", "--tsv"), default=NULL,
-              help = "merged tsv file", metavar = "tsv file")
+              help = "merged tsv file", metavar = "tsv file"),
+  make_option(c("-V", "--version"), default=NULL,
+              help = "nextflow process version", metavar = "process version")
 )
 
 opt_parser <- OptionParser(option_list = option_list);
@@ -33,9 +36,23 @@ if(is.null(opt$tsv)) {
 one_chrom <- read.table(opt$tsv, sep = "\t", fill = TRUE, header = TRUE)
 
 if (nrow(one_chrom) < 2) {
+
+  ver <- strsplit(R.version.string, " ")[[1]][3]
+  settings_list <- list(
+    `Process Version` = list(
+      fixROH = opt$version
+    ),
+    `Tool Version` = list(
+      R =  ver
+    )
+  )
+
+  write_yaml(settings_list, file = "versions.yml")
+
   filename <- stringr::str_remove(opt$tsv, "\\..*")
   write.table(one_chrom,file=paste0(filename, "_fixed.tsv"),quote = FALSE,row.names = FALSE,sep = "\t")
   quit(save = "no", status = 0)
+  
 }
 
 for (row in 1:(nrow(one_chrom)-1)) {
@@ -64,3 +81,15 @@ for (row in 1:(nrow(one_chrom)-1)) {
 
 filename <- stringr::str_remove(opt$tsv, "\\..*")
 write.table(one_chrom,file=paste0(filename, "_fixed.tsv"),quote = FALSE,row.names = FALSE,sep = "\t")
+
+ver <- strsplit(R.version.string, " ")[[1]][3]
+settings_list <- list(
+  `Process version` = list(
+    fixROH = opt$version
+  ),
+  `Tool version` = list(
+    R =  ver
+  )
+)
+
+write_yaml(settings_list, file = "versions.yml")

@@ -5,14 +5,18 @@ import csv
 import os
 import argparse
 import re
+import sys
+import yaml
 
 parser = argparse.ArgumentParser(description="Find overlaps between ROH and genes")
 parser.add_argument('--tsv', required=True, help='tsv file name')
 parser.add_argument('--bed', required=True, help='bed file with gene locations')
+parser.add_argument('--version', required=True, help='Nextflow process version')
 args = parser.parse_args()
 
 entry = args.tsv
 bed_file = args.bed
+version = args.version
 output_dir = "."
 
 with open(entry) as df:
@@ -44,3 +48,19 @@ with open(bed_file) as gb, open(entry) as rp, open(output_dir + "/" + "OL_" + en
         if bed_genes != "":
             row_plink.append(bed_genes)
         writer.writerow(row_plink)
+
+
+data = {
+    'Process version': {
+        'overlap' : version
+    },
+    
+    'Tool version': {
+        'python' : sys.version.split()[0]
+    }
+
+}
+
+file_path = 'versions.yml'
+with open(file_path, 'w') as file:
+    yaml.dump(data, file)

@@ -2,10 +2,13 @@
 
 suppressMessages(library(tidyverse))
 suppressMessages(library(optparse))
+suppressMessages(library(yaml))
 
 option_list = list(
   make_option(c("-T", "--tsv"), default=NULL,
-              help = "merged tsv file", metavar = "tsv file")
+              help = "merged tsv file", metavar = "tsv file"),
+  make_option(c("-V", "--version"), default=NULL,
+              help = "version of the nextflow process", metavar = "process version")
 )
 
 opt_parser <- OptionParser(option_list = option_list);
@@ -41,3 +44,15 @@ for (chrom in unique(result$CHR)) {
 
   write.table(one_chrom,file=paste0("file_", i, ".tsv"),quote = FALSE,row.names = FALSE,sep = "\t")
 }
+
+ver <- strsplit(R.version.string, " ")[[1]][3]
+settings_list <- list(
+  `Process version` = list(
+    splitROH = opt$version
+  ),
+  `Tool version` = list(
+    R =  ver
+  )
+)
+
+write_yaml(settings_list, file = "versions.yml")

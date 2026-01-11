@@ -1,4 +1,5 @@
 process plink {
+        ext version: '1.0.0'
 
 	label 'plink'
 
@@ -14,8 +15,12 @@ process plink {
         path("plink.hom"), emit: roh_file
         val(chrom), emit: chromosome
         tuple path("plink.map"), path("plink.ped"), emit: dr_files
+        path("${task.process}_versions.yml"), emit: plink_version
 
         script:
+
+        def cleanname = task.process.split(':')[-1]
+
         """
         plink \
         --vcf ${vcf_file} \
@@ -34,6 +39,14 @@ process plink {
         --recode \
         --threads 2 \
         --out plink
+
+        cat <<-EOF > ${task.process}_versions.yml
+        Process version:
+          ${cleanname}: ${task.ext.version}
+
+        Tool version:
+          plink: \$(plink --version | awk '{print \$2}')
+        EOF
         
         """
 }

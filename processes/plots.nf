@@ -1,5 +1,6 @@
 process plot_results {
 
+        ext version: '1.0.9'
 	label 'plots'
 
         publishDir "${params.main.outdir}/output/final_plots"
@@ -12,12 +13,13 @@ process plot_results {
         output:
         path("*.tsv"), emit: tsv_files
         path("*.png"), emit: plots
+        path("${state}_versions.yml"), emit: plots_version
 
         script:
         """
         awk 'FNR==1 && NR!=1 {next} {print}' ${tsv_tuple} > temp.tsv
 
-        Rscript ${plot_script} -T temp.tsv
+        Rscript ${plot_script} -T temp.tsv -V ${task.ext.version}
         
         rm temp.tsv *_fixed.tsv
 

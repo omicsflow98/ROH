@@ -1,4 +1,5 @@
 process detectruns {
+        ext version: '1.0.2'
 
 	label 'detectruns'
 
@@ -10,8 +11,12 @@ process detectruns {
 
         output:
         path("*.tsv"), emit: dr_tsv
+        path("${task.process}_versions.yml"), emit: dr_version
 
         script:
+
+        def cleanname = task.process.split(':')[-1]
+
         """
         Rscript ${dr_script} \
         --ped ${ped_file} \
@@ -25,7 +30,10 @@ process detectruns {
         ${ dr_map.minlength ? "--minlength ${dr_map.minlength}" : "" } \
         ${ dr_map.mindensity ? "--mindensity ${dr_map.mindensity}" : "" } \
         ${ dr_map.maxhomrun ? "--maxhomrun ${dr_map.maxhomrun}" : "" } \
-        ${ chrom ? "--chromosome ${chrom}" : "" }
+        ${ chrom ? "--chromosome ${chrom}" : "" } \
+        --version ${task.ext.version}
+
+        mv versions.yml ${task.process}_versions.yml 
 
         """
 }

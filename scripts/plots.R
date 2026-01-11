@@ -4,10 +4,13 @@ suppressMessages(library(tidyverse))
 suppressMessages(library(patchwork))
 suppressMessages(library(zoo))
 suppressMessages(library(optparse))
+suppressMessages(library(yaml))
 
 option_list = list(
   make_option(c("-T", "--tsv"), default=NULL,
-              help = "list of tsv files", metavar = "tsv files")
+              help = "list of tsv files", metavar = "tsv files"),
+  make_option(c("-V", "--version"), default=NULL,
+              help = "Nextflow process version", metavar = "process version")
 )
 
 opt_parser <- OptionParser(option_list = option_list);
@@ -128,3 +131,20 @@ ggsave(
   height = 6,   # reasonable height
   dpi = 300     # good resolution for print/publication
 )
+
+ver_zoo <- as.character(packageVersion("zoo"))
+ver_patchwork <- as.character(packageVersion("patchwork"))
+ver_R <- strsplit(R.version.string, " ")[[1]][3]
+
+settings_list <- list(
+  `Process version` = list(
+    plots = opt$version
+  ),
+  `Tool version` = list(
+    zoo =  ver_zoo,
+    R = ver_R,
+    patchwork = ver_patchwork
+  )
+)
+
+write_yaml(settings_list, file = "versions.yml")

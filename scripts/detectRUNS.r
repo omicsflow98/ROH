@@ -3,6 +3,7 @@
 suppressMessages(library(detectRUNS))
 suppressMessages(library(tidyverse))
 suppressMessages(library(optparse))
+suppressMessages(library(yaml))
 
 option_list = list(
   make_option(c("-P", "--ped"), default=NULL,
@@ -30,7 +31,9 @@ option_list = list(
   make_option(c("-R", "--maxmissingrun"), default=NULL,
               help = "maximum number of missing SNP allowed in whole run", metavar = "max miss in run"),
   make_option(c("-C", "--chromosome"), default=NULL,
-              help = "name of chromosome", metavar = "chromosome name")
+              help = "name of chromosome", metavar = "chromosome name"),
+  make_option(c("-V", "--version"), default=NULL,
+              help = "process version", metavar = "version")
 )
 
 opt_parser <- OptionParser(option_list = option_list);
@@ -88,3 +91,17 @@ fix_df <- slidingRUNS %>%
 
 write.table(fix_df, file = paste0(chrom, ".tsv"), quote = FALSE, row.names = FALSE, sep = "\t")
 
+ver_dr <- as.character(packageVersion("detectRUNS"))
+ver_R <- strsplit(R.version.string, " ")[[1]][3]
+
+settings_list <- list(
+  `Process version` = list(
+    detectruns = opt$version
+  ),
+  `Tool version` = list(
+    detectRUNS =  ver_dr,
+    R = ver_R
+  )
+)
+
+write_yaml(settings_list, file = "versions.yml")
