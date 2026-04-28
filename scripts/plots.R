@@ -70,7 +70,8 @@ ROH_info$ROH_num <- as.numeric(sub("ROH_", "", ROH_info$ROH_ID))
 x_labels <- x_labels <- c(ROH_info$ROH_num[1], ROH_info$ROH_num[nrow(ROH_info)])
 
 p1 <- ggplot(ROH_info, aes(x = ROH_num)) +
-  geom_line(aes(y = y1_kb, group = 1), color = "blue") +
+#  geom_line(aes(y = y1_kb, group = 1), color = "blue") +
+  geom_point(aes(y = y1_kb, group = 1), color = "blue") +
   scale_y_sqrt() +  # keeps zero values visible
   scale_x_continuous(
     breaks = x_labels,
@@ -80,7 +81,8 @@ p1 <- ggplot(ROH_info, aes(x = ROH_num)) +
   theme_minimal()
 
 p2 <- ggplot(ROH_info, aes(x = ROH_num)) +
-  geom_line(aes(y = y1_nsnp, group = 1), color = "red") +
+#  geom_line(aes(y = y1_nsnp, group = 1), color = "red") +
+  geom_point(aes(y = y1_nsnp, group = 1), color = "red") +
   scale_y_sqrt() +  # keeps zero values visible
   scale_x_continuous(
     breaks = x_labels,
@@ -90,7 +92,8 @@ p2 <- ggplot(ROH_info, aes(x = ROH_num)) +
   theme_minimal()
 
 p3 <- ggplot(ROH_info, aes(x = ROH_num)) +
-  geom_line(aes(y = y1_dens, group = 1), color = "#187118") +
+#  geom_line(aes(y = y1_dens, group = 1), color = "#187118") +
+  geom_point(aes(y = y1_dens, group = 1), color = "#187118") +
   scale_y_sqrt() +  # keeps zero values visible
   scale_x_continuous(
     breaks = x_labels,

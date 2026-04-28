@@ -1,17 +1,18 @@
 process plink {
         ext version: '1.0.0'
-
-	label 'plink'
+        
+        label 'plink'
 
         publishDir "${params.main.outdir}/output/plink"
 
         input:
-        path(vcf_file)
+        tuple val(type), path(vcf), path(bed), path(bim), path(fam)
         val plink_map
         val chrom
 
         output:
         path("plink.*"), emit: plink_files
+        path(bim), emit: bim_file
         path("plink.hom"), emit: roh_file
         val(chrom), emit: chromosome
         tuple path("plink.map"), path("plink.ped"), emit: dr_files
@@ -20,20 +21,35 @@ process plink {
         script:
 
         def cleanname = task.process.split(':')[-1]
+        def command
+        def make_bed
+
+        if (type == 'VCF') {
+          command = "--vcf ${vcf}"
+          make_bed = true
+        } else {
+          def prefix = bim.toString().replace('.bim', '')
+          command = "--bfile ${prefix}"
+          make_bed = false
+        }
 
         """
+        cut -f1 ${bim} | uniq > chr-map.txt
+
         plink \
-        --vcf ${vcf_file} \
+        ${command} \
         --homozyg \
+        --chr-set 35 no-xy no-mt \
+        ${ make_bed ? "--make-bed" : "" } \
         ${ plink_map.snp ? "--homozyg-snp ${plink_map.snp}" : "" } \
         ${ plink_map.kb ? "--homozyg-kb ${plink_map.kb}" : "" } \
         ${ plink_map.density ? "--homozyg-density ${plink_map.density}" : "" } \
         ${ plink_map.gap ? "--homozyg-gap ${plink_map.gap}" : "" } \
         ${ plink_map.windowsnp ? "--homozyg-window-snp ${plink_map.windowsnp}" : "" } \
-        ${ plink_map.WindowHet ? "--homozyg-window-het ${plink_map.WindowHet}" : "" } \
-        ${ plink_map.WindowMissing ? "--homozyg-window-missing ${plink_map.WindowMissing}" : "" } \
+        ${ (plink_map?.containsKey('WindowHet') && plink_map.WindowHet != null) ? "--homozyg-window-het ${plink_map.WindowHet}" : "" } \
+        ${ (plink_map?.containsKey('WindowMissing') && plink_map.WindowMissing != null) ? "--homozyg-window-missing ${plink_map.WindowMissing}" : "" } \
         ${ plink_map.WindowThreshold ? "--homozyg-window-threshold ${plink_map.WindowThreshold}" : "" } \
-        ${ plink_map.HomozygHet ? "--homozyg-het ${plink_map.HomozygHet}" : "" } \
+        ${ (plink_map?.containsKey('HomozygHet') && plink_map.HomozygHet != null) ? "--homozyg-het ${plink_map.HomozygHet}" : "" } \
         --allow-extra-chr \
         ${ chrom ? "--chr ${chrom}" : "" } \
         --recode \

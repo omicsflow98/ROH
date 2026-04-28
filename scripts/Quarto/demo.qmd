@@ -1,0 +1,391 @@
+---
+title: "test demo"
+author: "Mohamad Elian"
+date: today
+execute: 
+  echo: false
+knitr:
+  opts_chunk: 
+    warning: false
+    message: false
+format:
+  html:
+    toc: true
+    page-layout: full
+    css: style.scss
+params:
+  hom: true
+  het: true
+  substate: true
+  vcf: true
+
+---
+
+```{r state}
+
+hom <- params$hom
+het <- params$het
+substate <- params$substate
+vcfstate <- params$vcf
+```
+
+<!--These are the files that will be sources -->
+```{r load-everything}
+
+homfile <- "HOM_temp.tsv"
+hetfile <- "HET_temp.tsv"
+indiv_homfile <- "HOM.indiv"
+indiv_hetfile <- "HET.indiv"
+vcf_info <- "vcf_info.txt"
+bedfile <- "genes.bed"
+HOMisland <- "HOM_topsnps.tsv"
+HETisland <- "HET_topsnps.tsv"
+
+source("test.R", local = knitr::knit_global())
+
+```
+
+```{r setup-packages}
+#| include: false
+#| fig-cap: ""
+plotly::plot_ly()
+DT::datatable(data.frame())
+```
+
+:::{.column-margin}
+Input Information:
+```{r set-margins}
+#| eval: !expr vcfstate
+#| results: asis
+
+knitr::kable(side_info) %>%
+  kable_styling(bootstrap_options = "bordered")
+
+```
+:::
+
+## Individual information
+
+::: {#tbl-indiv .mb-large}
+```{r indiv-info}
+#| eval: true
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  print(htmltools::tagList(
+    datatable(indiv_HOM, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(indiv_HOM), fontSize = '80%')
+  ))
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  print(htmltools::tagList(
+    datatable(indiv_HET, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(indiv_HET), fontSize = '80%')
+  ))
+}
+
+if (hom && het) cat("\n:::\n\n")
+```
+Individual information
+
+:::
+
+## PLOTS
+
+This is the first plot and I'm describing it here
+
+::: {#fig-roh .mb-large}
+
+```{r fig-roh}
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+make_plot <- function(df, ylab) {
+  print(htmltools::tagList(
+    plot_ly(df, x = ~gene_count, y = ~n, type = "bar") %>%
+      layout(xaxis = list(title = "number of Genes"),
+             yaxis = list(title = ylab))
+  ))
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  make_plot(num_genes_HOM, "number of ROH")
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  make_plot(num_genes_HET, "number of HRR")
+}
+
+if (hom && het) cat("\n:::\n\n")
+```
+nROH vs Genes
+
+:::
+
+This is some comment, see @fig-roh
+
+## TABLES
+The below table shows the ROH produced by the pipeline
+
+::: {#tbl-roh .mb-large}
+```{r tbl-roh}
+#| eval: true
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  print(htmltools::tagList(
+    datatable(plot_table_HOM, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(plot_table_HOM), fontSize = '80%')
+  ))
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  print(htmltools::tagList(
+    datatable(plot_table_HET, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(plot_table_HET), fontSize = '80%')
+  ))
+}
+
+if (hom && het) cat("\n:::\n\n")
+```
+Table caption
+
+:::
+
+This text references table @tbl-roh
+
+## Islands
+The below tables show the ROH and HRR islands as defined by the Goat paper
+
+::: {#tbl-island .mb-large}
+```{r tbl-island}
+#| eval: true
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  print(htmltools::tagList(
+    datatable(plot_ROHislands, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(plot_table_HOM), fontSize = '80%')
+  ))
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  print(htmltools::tagList(
+    datatable(plot_HRRislands, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(plot_table_HET), fontSize = '80%')
+  ))
+}
+
+if (hom && het) cat("\n:::\n\n")
+
+```
+ROH and HRR islands
+
+:::
+
+This is the description of @tbl-island
+
+## Two figures 
+
+::: {#fig-dot .column-page}
+
+```{r fig-dot}
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+make_plots <- function(df, xlab, kval) {
+  p1 <- plot_ly(df, x = ~ROH_num, y = ~y1_kb, type = "scatter") %>%
+    layout(xaxis = list(title = xlab),
+           yaxis = list(title = paste0("length KB (K = ", kval, ")")))
+  
+  p2 <- plot_ly(df, x = ~ROH_num, y = ~y1_nsnp, type = "scatter", mode = "markers",
+        marker = list(color = "red")) %>%
+    layout(xaxis = list(title = xlab),
+           yaxis = list(title = paste0("number of SNP (K = ", kval, ")")))
+  
+  print(htmltools::tagList(subplot(p1, p2, nrows = 1, shareX = FALSE, shareY = FALSE, titleX = TRUE, titleY = TRUE, margin = 0.04)))
+}
+
+if (hom) {
+  if (hom && het) { cat("## ROH\n\n") }
+  make_plots(ROH_info_HOM, "ROH number", khom)
+}
+
+if (het) {
+  if (hom && het) { cat("\n## HRR\n\n") }
+  make_plots(ROH_info_HET, "HRR number", khet)
+}
+
+if (hom && het) cat("\n:::\n\n")
+
+```
+This is my figure caption
+:::
+
+I am referencing @fig-dot. More specifically
+
+## Gene Based Outlook
+
+Looking at it from a Gene perspective
+
+::: {#tbl-gene .mb-large}
+
+```{r tbl-gene}
+#| eval: true
+#| results: asis
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  print(htmltools::tagList(
+    datatable(final_ROH_count, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(final_ROH_count), fontSize = '80%')
+  ))
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  print(htmltools::tagList(
+    datatable(final_HRR_count, rownames = FALSE, class = 'cell-border stripe') %>%
+      formatStyle(columns = colnames(final_HRR_count), fontSize = '80%')
+  ))
+}
+
+if (hom && het) cat("\n:::\n\n")
+```
+Gene table caption
+
+:::
+
+<!--The following codeblocks will run if subpopulations are being used -->
+```{r load-subpop}
+#| eval: !expr substate
+#| results: asis
+
+subpop <- "subfile.tsv"
+source("subpopulations.R", local = knitr::knit_global())
+```
+
+<!--This is for the subpop nroh table -->
+```{r tbl-subpop}
+#| eval: !expr substate
+#| results: asis
+
+cat("## Subpopulations\n\nSome text about the subpopulation\n\n")
+cat("### samples per subpopulation\n\n")
+cat("::: {#tbl-subpop .mb-large}\n\n")
+
+print(htmltools::tagList(
+  datatable(num_samples_df, rownames = FALSE, class = 'cell-border stripe') %>%
+    formatStyle(columns = colnames(num_samples_df), fontSize = '80%')
+  ))
+
+cat("\nTable caption\n\n:::\n")
+cat("This is the caption and we will reference @tbl-subpop\n")
+```
+
+<!--This is for the number of ROH/HRR per subpopulation figure -->
+```{r fig-subpopnroh}
+#| eval: !expr substate
+#| results: asis
+
+cat("### ROH per subpopulation\n\n")
+cat("::: {#fig-subpopnroh .mb-large}\n\n")
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+make_plot <- function(df, xlab) {
+  print(htmltools::tagList(
+    plot_ly(df, x = ~value, y = ~groupings, type = "bar", orientation = "h") %>%
+      layout(xaxis = list(title = xlab),
+             yaxis = list(title = "subpopulation"))
+  ))
+}
+
+
+
+if (hom) {
+  if (hom && het) { cat("## ROH\n\n") }
+  make_plot(plot_nROH, "number of ROH")
+}
+
+if (het) {
+  if (hom && het) { cat("\n## HRR\n\n") }
+  make_plot(plot_nHRR, "number of HRR")
+}
+
+if (hom && het) cat("\n:::\n\n")
+cat("This is my caption\n:::\n\n")
+cat("I am now writing some stuff about @fig-subpopnroh")
+
+```
+
+<!--This is for the length of ROH per subpopulation -->
+```{r fig-subpoplroh}
+#| eval: !expr substate
+#| results: asis
+
+cat("### ROH/HRR length per subpopulation\n\n")
+cat("::: {#fig-subpoplroh .mb-large}\n\n")
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+make_plot <- function(df, ylab) {
+  print(htmltools::tagList(
+    plot_ly(df, x = ~groupings, y = ~KBAVG,color = ~groupings,
+            split = ~groupings, type = "violin", box = list(
+              visible = T), meanline = list(visible = T)) %>%
+      layout(xaxis = list(title = "subpopulation"), yaxis = list(title = ylab)))
+    )
+}
+
+
+
+if (hom) {
+  if (hom && het) { cat("## ROH\n\n") }
+  make_plot(plot_violin_ROH, "Length of ROH (KB)")
+}
+
+if (het) {
+  if (hom && het) { cat("\n## HRR\n\n") }
+  make_plot(plot_violin_HRR, "Length of HRR (KB)")
+}
+
+if (hom && het) cat("\n:::\n\n")
+cat("This is my caption\n:::\n\n")
+cat("I am now writing some stuff about @fig-subpoplroh")
+```

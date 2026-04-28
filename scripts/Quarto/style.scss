@@ -1,0 +1,27 @@
+/*-- scss:defaults --*/
+
+.mb-large {
+  margin-bottom: 2rem;
+}
+
+.margin-sticky {
+  position: sticky;
+  top: 25rem;  /* distance from bottom of viewport */
+  z-index: 10; /* keep it above other content */
+}
+
+#tbl-roh figcaption {
+  text-align: left;
+}
+
+.page-layout-full {
+  padding-left: 1rem;
+}
+
+main.page-columns {
+  margin-left: 0;
+}
+
+caption, .table-caption, figure.quarto-float-tbl figcaption {
+  text-align: left !important;
+}
