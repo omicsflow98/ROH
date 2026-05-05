@@ -1,4 +1,4 @@
-process plot_results {
+process merge_files {
 
         ext version: '1.0.9'
 	label 'plots'

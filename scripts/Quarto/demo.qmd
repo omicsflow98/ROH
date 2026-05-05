@@ -66,6 +66,8 @@ knitr::kable(side_info) %>%
 
 ## Individual information
 
+This table provides information about the individuals in the dataset, including the number of ROH and/or HRR segments, as well as the total length of these segments. This information can be useful for understanding the overall level of homozygosity and heterozygosity in the population, as well as for identifying individuals that may be of particular interest for further analysis.
+
 ::: {#tbl-indiv .mb-large}
 ```{r indiv-info}
 #| eval: true
@@ -99,7 +101,7 @@ Individual information
 
 ## PLOTS
 
-This is the first plot and I'm describing it here
+This plot shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.
 
 ::: {#fig-roh .mb-large}
 
@@ -137,7 +139,7 @@ nROH vs Genes
 This is some comment, see @fig-roh
 
 ## TABLES
-The below table shows the ROH produced by the pipeline
+This table shows the longest ROH and/or HRR in the genome alongside identifying information for these segments. This information can be useful for understanding the characteristics of the longest ROH and/or HRR segments in the dataset, as well as for identifying specific regions of the genome that may be of particular interest for further analysis.
 
 ::: {#tbl-roh .mb-large}
 ```{r tbl-roh}
@@ -173,7 +175,7 @@ Table caption
 This text references table @tbl-roh
 
 ## Islands
-The below tables show the ROH and HRR islands as defined by the Goat paper
+The below tables show the ROH and HRR islands as defined by the Chessari et al. In this context, an island is defined as an ROH/HRR which contains at least 4 of the top 0.1% of SNPs from the dataset.
 
 ::: {#tbl-island .mb-large}
 ```{r tbl-island}
@@ -211,6 +213,8 @@ This is the description of @tbl-island
 
 ## Two figures 
 
+This figure shows the length distribution and the numbe rof SNPs found in each ROH and/or HRR segment across the genome. 
+
 ::: {#fig-dot .column-page}
 
 ```{r fig-dot}
@@ -246,14 +250,14 @@ if (het) {
 if (hom && het) cat("\n:::\n\n")
 
 ```
-This is my figure caption
+Length and number of ROH and/or HRR segments
 :::
 
 I am referencing @fig-dot. More specifically
 
 ## Gene Based Outlook
 
-Looking at it from a Gene perspective
+Using the gene annotation file provided by the user, this table shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.
 
 ::: {#tbl-gene .mb-large}
 

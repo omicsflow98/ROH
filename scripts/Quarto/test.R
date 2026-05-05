@@ -13,7 +13,7 @@ if (vcfstate) {
 }
 
 bedfile <- read.table(bedfile, sep = "\t", fill = TRUE, header = FALSE)
-colnames(bedfile) <- c("CHR", "START", "END", "gene_name", "col5", "col6", "col7", "col8", "col9", "col10", "col11", "col12")
+colnames(bedfile)[1:4] <- c("CHR", "START", "END", "gene_name")
 bedsubset <- bedfile %>%
   select(gene_name, CHR, START, END)
 
@@ -87,7 +87,7 @@ if (hom) {
   ROH_info_HOM$y1_nsnp <- rollmean(ROH_info_HOM$NSNP, k = khom, fill = NA, align = "center")
   ROH_info_HOM$y1_dens <- rollmean(1/ROH_info_HOM$DENSITY, k = khom, fill = NA, align = "center")
   ROH_info_HOM$ROH_num <- as.numeric(sub("ROH_", "", ROH_info_HOM$ROH_ID))
-  x_labels <- x_labels <- c(ROH_info_HOM$ROH_num[1], ROH_info_HOM$ROH_num[nrow(ROH_info_HOM)])
+  x_labels <- c(ROH_info_HOM$ROH_num[1], ROH_info_HOM$ROH_num[nrow(ROH_info_HOM)])
 
   ROHfile_long <- ROHfile %>%
   separate_rows(genes, sep = " ") %>%
@@ -197,8 +197,8 @@ if (het) {
   ROH_info_HET$y1_kb <- rollmean(ROH_info_HET$KB, k = khet, fill = NA, align = "center")
   ROH_info_HET$y1_nsnp <- rollmean(ROH_info_HET$NSNP, k = khet, fill = NA, align = "center")
   ROH_info_HET$y1_dens <- rollmean(1/ROH_info_HET$DENSITY, k = khet, fill = NA, align = "center")
-  ROH_info_HET$ROH_num <- as.numeric(sub("ROH_", "", ROH_info_HET$HRR_ID))
-  x_labels <- x_labels <- c(ROH_info_HET$ROH_num[1], ROH_info_HET$ROH_num[nrow(ROH_info_HET)])
+  ROH_info_HET$ROH_num <- as.numeric(sub("HRR_", "", ROH_info_HET$HRR_ID))
+  x_labels <- c(ROH_info_HET$ROH_num[1], ROH_info_HET$ROH_num[nrow(ROH_info_HET)])
 
   HRRfile_long <- HRRfile %>%
   separate_rows(genes, sep = " ") %>%

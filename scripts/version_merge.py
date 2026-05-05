@@ -22,15 +22,28 @@ merged = defaultdict(dict)
 for vf in files:
     with open(vf) as f:
         data = yaml.safe_load(f) or {}
+
     for section, entries in data.items():
+        merged.setdefault(section, {})
+
         for key, value in entries.items():
             if key in merged[section]:
                 if merged[section][key] != value:
-                    raise ValueError(
-                        f"Version conflict for {section}:{key} "
-                        f"{merged[section][key]} vs {value} (file: {vf})"
-                    )
-            merged[section][key] = value
+                    # Append new value (avoid duplicates)
+                    existing = merged[section][key]
+
+                    # Turn existing into a list if it's not already
+                    if not isinstance(existing, list):
+                        existing = [v.strip() for v in str(existing).split(",")]
+
+                    # Add new value if it's not already present
+                    if str(value) not in existing:
+                        existing.append(str(value))
+
+                    # Store back as comma-separated string
+                    merged[section][key] = ", ".join(existing)
+            else:
+                merged[section][key] = value
 
 with open(output, "w") as out:
     yaml.dump(dict(merged), out, sort_keys=False, default_flow_style=False)

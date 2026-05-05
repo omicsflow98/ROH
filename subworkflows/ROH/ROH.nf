@@ -2,7 +2,7 @@
 
 include { overlap } from '../../processes/overlap.nf'
 include { combine_overlap } from '../../processes/overlap.nf'
-include { plot_results } from '../../processes/plots.nf'
+include { merge_files } from '../../processes/mergefiles.nf'
 include { splitROH } from '../../processes/splitROH.nf'
 include { fixROH } from '../../processes/fixROH.nf'
 include { snpislands } from '../../processes/snpislands.nf'
@@ -13,12 +13,12 @@ workflow ROH {
 	take:
 	collected_tsvs
 	bim_file
+	bed_file
 	state
 
 	main:
 
 	chromosomes= file( "${params.settings.chromsfile}" )
-	bed_file = file("${params.settings.bedfile}")
 	overlap_script = file("${projectDir}/scripts/overlap_roh.py")
 	split_script = file("${projectDir}/scripts/splitROH.R")
 	fix_script = file("${projectDir}/scripts/fixROH.R")
@@ -60,9 +60,9 @@ workflow ROH {
 		| collect
 		| set { fixed_tsv }
 
-	plot_results_map = plot_results(fixed_tsv, state)
+	merge_map = merge_files(fixed_tsv, state)
 
-	ROH_results = plot_results_map.tsv_file
+	ROH_results = merge_map.tsv_file
 
 	all_versions = overlap_version
 		| combine(combine_overlap_map.combineOL_version)
