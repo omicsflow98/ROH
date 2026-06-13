@@ -3,6 +3,8 @@ process detectruns {
 
 	label 'detectruns'
 
+        publishDir "${params.main.outdir}/output/detectRUNS"
+
         input:
         path (dr_script)
         tuple path(map_file), path(ped_file)

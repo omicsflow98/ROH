@@ -23,6 +23,12 @@ workflow ROH {
 	split_script = file("${projectDir}/scripts/splitROH.R")
 	fix_script = file("${projectDir}/scripts/fixROH.R")
 	topsnp_script = file("${projectDir}/scripts/topsnp.py")
+	island_info = channel.value(
+		tuple(
+			params.island.type,
+			params.island.threshold
+		)
+	)
 
 	genome = params.settings.genomelength
 
@@ -42,7 +48,7 @@ workflow ROH {
 
 	islands = snpislands(combine_overlap_map.ROH_file, bim_file)
 
-	topislands = topsnp(state, topsnp_script, islands.snpcount)
+	topislands = topsnp(state, topsnp_script, islands.snpcount, island_info)
 	finalislands = topislands.topsnps
 
 	splitROH_map = splitROH(split_script, combine_overlap_map.ROH_file, state, genome)

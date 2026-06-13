@@ -17,6 +17,7 @@ process quarto {
         val(vcfstate)
         path(subpop)
         path(bedfile)
+        tuple val(islandtype), val(minsnp), val(indiv_count)
 
         output:
         path("*.zip")
@@ -35,7 +36,14 @@ process quarto {
         mv tempfilename genes.bed
         ${ subpop ? "mv ${subpop} subfile.tsv" : "" }
 
-        quarto render ${quartofile} -P hom:${homstate} -P het:${hetstate} -P substate:${substate} -P vcf:${vcfstate}
+        quarto render ${quartofile} \\
+        -P hom:${homstate} \\
+        -P het:${hetstate} \\
+        -P substate:${substate} \\
+        -P vcf:${vcfstate} \\
+        -P type:${islandtype} \\
+        -P minsnp:${minsnp} \\
+        -P indiv:${indiv_count}
 
         zip -r demo_files.zip demo.html demo_files
 

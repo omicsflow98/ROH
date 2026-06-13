@@ -3,7 +3,7 @@
 include { ROH as ROHOM } from './subworkflows/ROH/ROH.nf'
 include { ROH as ROHET } from './subworkflows/ROH/ROH.nf'
 include { quarto } from './processes/quarto.nf'
-include { plink as plinkhet } from './processes/plink.nf'
+include { plinkhet } from './processes/plink.nf'
 include { plink as plinkhom } from './processes/plink.nf'
 include { plink as plinkhetbim } from './processes/plink.nf'
 include { detectruns } from './processes/detectruns.nf'
@@ -33,6 +33,13 @@ workflow {
         file("${projectDir}/scripts/Quarto/test.R"),
         file("${projectDir}/scripts/Quarto/subpopulations.R"),
         file("${projectDir}/scripts/Quarto/style.scss")
+        )
+    )
+    island_info = channel.value(
+        tuple (
+            params.island.type,
+            params.island.minSNP,
+            params.island.indiv_count
         )
     )
     subpop_tsv = params.settings.subpopulations? channel.fromPath(params.subpopulation.subpop_file):channel.of([])
@@ -92,7 +99,7 @@ workflow {
         
         chroms = channel.fromList(chromosomes.readLines())
         hetstate = "HET"
-        plinkhet_map = plinkhet(infile, plink_params, chroms)
+        plinkhet_map = plinkhet(infile, chroms)
         plinkhet_version = plinkhet_map.plink_version.collect().map{ it[0] }
 
         if (params.inputfiles.start_vcf) {
@@ -130,7 +137,8 @@ workflow {
     params.settings.subpopulations, 
     params.inputfiles.start_vcf,
     subpop_tsv, 
-    bed_file )
+    bed_file,
+    island_info )
 
     all_versions_ch = quarto_map.quarto_version
 //    | combine(vcf_info.vcft_version)

@@ -7,6 +7,7 @@ process topsnp {
         val(state)
         path(topsnp_script)
         path(countfile)
+        tuple val(type), val(threshold)
 
         output:
         path("${state}_topsnps.tsv"), emit: topsnps
@@ -17,6 +18,8 @@ process topsnp {
         """
         python3 ${topsnp_script} \
         --counts ${countfile} \
+        --type ${type} \
+        --threshold ${threshold} \
         --version ${task.ext.version}
 
         mv versions.yml ${task.process}_versions.yml

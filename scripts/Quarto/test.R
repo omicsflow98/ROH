@@ -30,8 +30,6 @@ if (hom) {
     rename(`Average ROH Length (KB)` = KBAVG) %>%
     rename(FROH = FRR)
 
-  cutoff = 0.2 * nrow(indiv_HOM)
-
   ROHislands <- read.table(HOMisland, sep = "\t", col.names = c("SNP", "CHR", "POS", "POS2", "count")) %>%
     select(SNP, CHR, POS)
 
@@ -55,7 +53,7 @@ if (hom) {
     inner_join(ROHislands, by = "CHR") %>%
     filter(POS >= POS1 & POS <= POS2) %>%
     count(CHR,POS1,POS2, name = "snp_count") %>%
-    filter(snp_count >= 4) %>%
+    filter(snp_count >= as.integer(minsnp)) %>%
     inner_join(prepHOMtable, by = c("CHR", "POS1", "POS2")) %>%
     select(ROH_ID, POS1, POS2, samples, CHR, KB, NSNP, genes)
 
@@ -141,8 +139,6 @@ if (het) {
     rename(`Average HRR Length (KB)` = KBAVG) %>%
     rename(FHRR = FRR)
 
-  cutoff = 0.2 * nrow(indiv_HET)
-
   HRRislands <- read.table(HETisland, sep = "\t", col.names = c("SNP", "CHR", "POS", "POS2", "count")) %>%
   select(SNP, CHR, POS)
 
@@ -162,11 +158,11 @@ if (het) {
   prepHETtable$CHR <- as.character(prepHETtable$CHR)
 
   plot_HRRislands <- prepHETtable %>%
-  filter(samples > cutoff) %>%
+  filter(samples >= cutoff) %>%
   inner_join(HRRislands, by = "CHR") %>%
   filter(POS >= POS1 & POS <= POS2) %>%
   count(CHR,POS1,POS2, name = "snp_count") %>%
-  filter(snp_count >= 4) %>%
+  filter(snp_count >= as.integer(minsnp)) %>%
   inner_join(prepHETtable, by = c("CHR", "POS1", "POS2")) %>%
   select(HRR_ID, POS1, POS2, samples, CHR, KB, NSNP, genes)
 

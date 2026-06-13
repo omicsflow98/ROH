@@ -18,6 +18,9 @@ params:
   het: true
   substate: true
   vcf: true
+  type: ''
+  minsnp: 0
+  indiv: 0
 
 ---
 
@@ -27,6 +30,9 @@ hom <- params$hom
 het <- params$het
 substate <- params$substate
 vcfstate <- params$vcf
+type <- params$type
+minsnp <- params$minsnp
+cutoff <- params$indiv
 ```
 
 <!--These are the files that will be sources -->
@@ -175,7 +181,7 @@ Table caption
 This text references table @tbl-roh
 
 ## Islands
-The below tables show the ROH and HRR islands as defined by the Chessari et al. In this context, an island is defined as an ROH/HRR which contains at least 4 of the top 0.1% of SNPs from the dataset.
+The below tables show the ROH and HRR islands as defined by the Chessari et al. In this context, an island is defined as an ROH/HRR which contains at least 4 of the top 0.1% of SNPs from the dataset. The islands are identified using the topsnp.py script, which takes in the counts of SNPs in ROH/HRR segments and identifies the top SNPs in either p-value or quantile mode. in this case `r type`
 
 ::: {#tbl-island .mb-large}
 ```{r tbl-island}
@@ -330,24 +336,25 @@ if (hom && het) {
   cat("::: {.panel-tabset}\n\n")
 }
 
-make_plot <- function(df, xlab) {
+make_plot <- function(df, ylab) {
   print(htmltools::tagList(
-    plot_ly(df, x = ~value, y = ~groupings, type = "bar", orientation = "h") %>%
-      layout(xaxis = list(title = xlab),
-             yaxis = list(title = "subpopulation"))
-  ))
+    plot_ly(df, x = ~groupings, y = ~NSEG,color = ~groupings,
+            split = ~groupings, type = "box", box = list(
+              visible = T), meanline = list(visible = T)) %>%
+      layout(xaxis = list(title = "subpopulation"), yaxis = list(title = ylab)))
+    )
 }
 
 
 
 if (hom) {
   if (hom && het) { cat("## ROH\n\n") }
-  make_plot(plot_nROH, "number of ROH")
+  make_plot(plot_nROH, "nROH (KB)")
 }
 
 if (het) {
   if (hom && het) { cat("\n## HRR\n\n") }
-  make_plot(plot_nHRR, "number of HRR")
+  make_plot(plot_nHRR, "nHRR (KB)")
 }
 
 if (hom && het) cat("\n:::\n\n")
@@ -371,7 +378,7 @@ if (hom && het) {
 make_plot <- function(df, ylab) {
   print(htmltools::tagList(
     plot_ly(df, x = ~groupings, y = ~KBAVG,color = ~groupings,
-            split = ~groupings, type = "violin", box = list(
+            split = ~groupings, type = "box", box = list(
               visible = T), meanline = list(visible = T)) %>%
       layout(xaxis = list(title = "subpopulation"), yaxis = list(title = ylab)))
     )
