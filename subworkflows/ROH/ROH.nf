@@ -15,6 +15,7 @@ workflow ROH {
 	bim_file
 	bed_file
 	state
+	genes_enabled
 
 	main:
 
@@ -23,6 +24,7 @@ workflow ROH {
 	split_script = file("${projectDir}/scripts/splitROH.R")
 	fix_script = file("${projectDir}/scripts/fixROH.R")
 	topsnp_script = file("${projectDir}/scripts/topsnp.py")
+	overlap_version = channel.empty()
 	island_info = channel.value(
 		tuple(
 			params.island.type,
@@ -32,26 +34,28 @@ workflow ROH {
 
 	genome = params.settings.genomelength
 
-	collected_tsvs
-		| flatten()
-		| set { individual_tsvs }
+	if (genes_enabled) {
+			collected_tsvs
+			| flatten()
+			| set { individual_tsvs }
+		overlap_map = overlap(overlap_script, individual_tsvs, bed_file)
+		overlap_version = overlap_map.OL_version.collect().map{ it[0] }
+		overlap_map.overlap_bed
+			| collect
+			| set { all_tsvs }
+		combine_overlap_map = combine_overlap(all_tsvs, chromosomes)
+		islands = snpislands(combine_overlap_map.ROH_file, bim_file)
 
-	overlap_map = overlap(overlap_script, individual_tsvs, bed_file)
-
-	overlap_version = overlap_map.OL_version.collect().map{ it[0] }
-
-	overlap_map.overlap_bed
-		| collect
-		| set { all_tsvs }
-
-	combine_overlap_map = combine_overlap(all_tsvs, chromosomes)
-
-	islands = snpislands(combine_overlap_map.ROH_file, bim_file)
-
-	topislands = topsnp(state, topsnp_script, islands.snpcount, island_info)
-	finalislands = topislands.topsnps
+	} else {
+		combine_overlap_map = combine_overlap(collected_tsvs, chromosomes)
+		islands = snpislands(combine_overlap_map.ROH_file, bim_file)
+	}
 
 	splitROH_map = splitROH(split_script, combine_overlap_map.ROH_file, state, genome)
+	topislands = topsnp(state, topsnp_script, islands.snpcount, island_info)
+	topversion = topislands.topsnps_version
+	finalislands = topislands.topsnps
+
 	indiv_info = splitROH_map.indiv_file
 
 	splitROH_map.split_tsv
@@ -70,12 +74,13 @@ workflow ROH {
 
 	ROH_results = merge_map.tsv_file
 
-	all_versions = overlap_version
+	version_info = topversion
 		| combine(combine_overlap_map.combineOL_version)
 		| combine(splitROH_map.splitROH_version)
 		| combine(fixROH_version)
 		| combine(islands.snpislands_version)
-		| combine(topislands.topsnps_version)
+
+	all_versions = version_info.mix(overlap_version)
 
 	emit:
 	ROH_results

@@ -15,6 +15,7 @@ process quarto {
         val(hetstate)
         val(substate)
         val(vcfstate)
+        val(genestate)
         path(subpop)
         path(bedfile)
         tuple val(islandtype), val(minsnp), val(indiv_count)
@@ -28,12 +29,19 @@ process quarto {
         script:
 
         def cleanname = task.process.split(':')[-1]
+        
                
         """
         export HOME=\${PWD}
 
-        mv ${bedfile} tempfilename
-        mv tempfilename genes.bed
+        if [[ "${genestate}" == "true" ]]; then
+          mv ${bedfile} tempfilename
+          mv tempfilename genes.bed
+
+        else
+          touch gene_fill.txt
+        fi
+
         ${ subpop ? "mv ${subpop} subfile.tsv" : "" }
 
         quarto render ${quartofile} \\
@@ -41,6 +49,7 @@ process quarto {
         -P het:${hetstate} \\
         -P substate:${substate} \\
         -P vcf:${vcfstate} \\
+        -P genestate:${genestate} \\
         -P type:${islandtype} \\
         -P minsnp:${minsnp} \\
         -P indiv:${indiv_count}
@@ -53,7 +62,7 @@ process quarto {
 
         Tool version:
           Quarto: \$(quarto --version)
-	EOF
+	      EOF
 
         """
 }

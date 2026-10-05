@@ -1,0 +1,166 @@
+settings:
+ chromsfile: /Absolute/path/to/chromosomes.txt #file containing chromosome names
+ genes: false # Set to true if you want to calculate gene metrics (requires gene file)
+ genomelength : 2400 #in Mb
+ homozygosity: false # Set to true if you want to calculate homozygosity
+ heterozygosity: true # Set to true if you want to calculate heterozygosity
+ subpopulations: false # Set to true if you want to calculate statistics for subpopulations (requires subpopulation file)
+
+# only needed if subpopulations is set to true
+subpopulation:
+  subpop_file: /Absolute/path/to/subpopulation.tsv #file containing subpopulation information
+
+island:
+  type: quantile # method for defining islands (quantile or pvalue)
+  threshold: 0.9979 # threshold for defining islands (quantile or pvalue)
+  minSNP: 4 # minimum number of top SNPs in an island
+  indiv_count: 1 # minimum number of individuals required to have a SNP in an island for it to be considered an island
+
+#only needed if genes is set to true
+genes:
+  genefile: gtf  #file containing gene information (gtf or bed)
+  gtf: /Absolute/path/to/sheep.gtf #gtf file containing gene information
+  bed: /Absolute/path/to/genes.bed # bed file containing gene information
+
+# settings for plink process
+plink:
+  # Parameters for plink --homozyg command (https://www.cog-genomics.org/plink/1.9/ibd)
+  parameters:
+    snp: 50 # min SNP count
+    kb: 1000 # min length
+    density: 50 # max inverse density (kb/SNP)
+    gap: 1000 # max internal gap length (kb)
+    windowsnp: 50 # scanning window size
+    WindowHet: 0 # max number of heterozygous calls allowed in scanning window
+    WindowMissing: 0 # max number of missing calls allowed in scanning window
+    WindowThreshold: 0.05 # minimum scanning window hit rate
+    HomozygHet: 0 # max hets
+    nosex: true
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+#settings for detectruns process
+detectruns:
+  # Parameters for detectRUNS slidingRUNS function (https://cran.r-project.org/web/packages/detectRUNS/detectRUNS.pdf)
+  parameters:
+    window: 10 # number of SNP in sliding window
+    threshold: 0.05 # threshold of overlapping windows of same state to call a SNP
+    minSNP: 10 # minimum number of SNPs in a HRR
+    maxhom: 3 # maximum number of HOM SNPs in a window
+    maxmissing: 2 # maximum number of missing SNPs in a window (optional)
+    maxgap: 1000000 # maximum gap between two SNPs in a HRR
+    minlength: 250000 # minimum length of a HRR
+    mindensity: 0.014 # minimum density of a HRR (SNPs/kb)
+    maxhomrun: 3 # maximum number of HOM SNPs in a run (optional)
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 5
+    local:
+      memory: 2.GB
+      time: "2h"
+      cpus: 1
+
+# settings for splitplink process
+splitplink:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+# settings for overlap process
+overlap:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 6
+    local:
+      memory: 2.GB
+      time: "2h"
+      cpus: 1
+
+# settings for combineoverlap process
+combineoverlap:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 6
+    local:
+      memory: 2.GB
+      time: "2h"
+      cpus: 1
+
+# settings for snpisland process
+snpisland:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 6
+    local:
+      memory: 2.GB
+      time: "2h"
+      cpus: 1
+
+# settings for topsnp process
+topsnp:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 6
+    local:
+      memory: 2.GB
+      time: "2h"
+      cpus: 1
+
+# settings for splitROH process
+splitROH:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+# settings for fixROH process
+fixROH:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+# settings for plots process
+plots:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1

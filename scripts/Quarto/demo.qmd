@@ -18,6 +18,7 @@ params:
   het: true
   substate: true
   vcf: true
+  genestate: true
   type: ''
   minsnp: 0
   indiv: 0
@@ -30,6 +31,7 @@ hom <- params$hom
 het <- params$het
 substate <- params$substate
 vcfstate <- params$vcf
+genestate <- params$genestate
 type <- params$type
 minsnp <- params$minsnp
 cutoff <- params$indiv
@@ -43,7 +45,9 @@ hetfile <- "HET_temp.tsv"
 indiv_homfile <- "HOM.indiv"
 indiv_hetfile <- "HET.indiv"
 vcf_info <- "vcf_info.txt"
-bedfile <- "genes.bed"
+if (genestate) {
+  bedfile <- "genes.bed"
+}
 HOMisland <- "HOM_topsnps.tsv"
 HETisland <- "HET_topsnps.tsv"
 
@@ -56,19 +60,21 @@ source("test.R", local = knitr::knit_global())
 #| fig-cap: ""
 plotly::plot_ly()
 DT::datatable(data.frame())
+cat(":::{.column-margin}\n\n")
 ```
 
-:::{.column-margin}
-Input Information:
 ```{r set-margins}
 #| eval: !expr vcfstate
 #| results: asis
 
+cat("Input Information:\n\n")
+
 knitr::kable(side_info) %>%
   kable_styling(bootstrap_options = "bordered")
 
+cat(":::\n\n")
+
 ```
-:::
 
 ## Individual information
 
@@ -104,45 +110,6 @@ if (hom && het) cat("\n:::\n\n")
 Individual information
 
 :::
-
-## PLOTS
-
-This plot shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.
-
-::: {#fig-roh .mb-large}
-
-```{r fig-roh}
-#| results: asis
-
-if (hom && het) {
-  cat("::: {.panel-tabset}\n\n")
-}
-
-make_plot <- function(df, ylab) {
-  print(htmltools::tagList(
-    plot_ly(df, x = ~gene_count, y = ~n, type = "bar") %>%
-      layout(xaxis = list(title = "number of Genes"),
-             yaxis = list(title = ylab))
-  ))
-}
-
-if (hom) {
-  if (hom && het) cat("## ROH\n\n")
-  make_plot(num_genes_HOM, "number of ROH")
-}
-
-if (het) {
-  if (hom && het) cat("\n## HRR\n\n")
-  make_plot(num_genes_HET, "number of HRR")
-}
-
-if (hom && het) cat("\n:::\n\n")
-```
-nROH vs Genes
-
-:::
-
-This is some comment, see @fig-roh
 
 ## TABLES
 This table shows the longest ROH and/or HRR in the genome alongside identifying information for these segments. This information can be useful for understanding the characteristics of the longest ROH and/or HRR segments in the dataset, as well as for identifying specific regions of the genome that may be of particular interest for further analysis.
@@ -261,15 +228,19 @@ Length and number of ROH and/or HRR segments
 
 I am referencing @fig-dot. More specifically
 
-## Gene Based Outlook
-
-Using the gene annotation file provided by the user, this table shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.
-
-::: {#tbl-gene .mb-large}
-
-```{r tbl-gene}
-#| eval: true
+```{r gene-text}
+#| eval: !expr genestate
 #| results: asis
+
+cat("## Gene Based Outlook\n\nUsing the gene annotation file provided by the user, this table shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.\n\n")
+
+```
+
+```{r mke-genetbl}
+#| eval: !expr genestate
+#| results: asis
+
+cat("::: {#tbl-gene .mb-large}\n\n")
 
 if (hom && het) {
   cat("::: {.panel-tabset}\n\n")
@@ -292,10 +263,50 @@ if (het) {
 }
 
 if (hom && het) cat("\n:::\n\n")
-```
-Gene table caption
 
-:::
+cat("Gene table caption\n\n:::\n")
+```
+
+```{r geneplot-text}
+#| eval: !expr genestate
+#| results: asis
+
+cat("## PLOTS\n\nThis plot shows the number of ROH and/or HRR segments that overlap with a certain number of genes. This information can be useful for understanding the distribution of ROH and/or HRR segments across the genome, as well as for identifying regions of the genome that may be particularly enriched for these segments.\n\n")
+
+```
+
+```{r fig-roh}
+#| eval: !expr genestate
+#| results: asis
+
+cat("::: {#fig-roh .mb-large}\n\n")
+
+if (hom && het) {
+  cat("::: {.panel-tabset}\n\n")
+}
+
+make_plot <- function(df, ylab) {
+  print(htmltools::tagList(
+    plot_ly(df, x = ~gene_count, y = ~n, type = "bar") %>%
+      layout(xaxis = list(title = "number of Genes"),
+             yaxis = list(title = ylab))
+  ))
+}
+
+if (hom) {
+  if (hom && het) cat("## ROH\n\n")
+  make_plot(num_genes_HOM, "number of ROH")
+}
+
+if (het) {
+  if (hom && het) cat("\n## HRR\n\n")
+  make_plot(num_genes_HET, "number of HRR")
+}
+
+if (hom && het) cat("\n:::\n\n")
+
+cat("nROH vs Genes\n\n:::\n\nThis is some comment, see @fig-roh\n")
+```
 
 <!--The following codeblocks will run if subpopulations are being used -->
 ```{r load-subpop}
@@ -307,7 +318,7 @@ source("subpopulations.R", local = knitr::knit_global())
 ```
 
 <!--This is for the subpop nroh table -->
-```{r tbl-subpop}
+```{r mketbl-subpop}
 #| eval: !expr substate
 #| results: asis
 

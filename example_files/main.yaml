@@ -1,0 +1,82 @@
+main:
+  temp_dir: /Absolute/Path/to/directory  # Directory to store temporary files
+  outdir: /Absolute/path/to/directory  # Output directory for the pipeline results
+  apptainer: true  # Set to true if any of your processes require apptainer (singularity) containers
+
+# Input files can either be a well-filtered VCF file or plink output files (bed/bim/fam)
+inputfiles:
+  start_vcf: false  # Set to true if you are starting with a VCF file instead of plink files
+  vcf_file: /Absolute/path/to/vcf/file.vcf # Path to the input VCF file (only required if start_vcf is true)
+  plink_file: /Absolute/path/to/plink/files  # Path to bed/bim/fam files alongside prefx name (only required if start_vcf is false)
+
+# Only needed if running pipeline using SLURM cluster (i.e if you are using -profile slurm)
+slurm:
+  account: aafc_aac
+  email: mohamadelian1996@gmail.com
+
+# Only needed if apptainer is set to true
+# Containers should be specified and contain the required software for each process. If a process does not require any software, set to null
+apptainer:
+  path: /Absolute/path/to/apptainer/containers # Path to directory containing apptainer containers
+  bedops: bedops.sif # requirements: bedops
+  plink: plink.sif # requirements: plink
+  detectruns: null # requirements: detectRUNS
+  splitplink: null # requirements: python with the following packages: csv, argparse, yaml
+  overlap: python2.sif # requirements: python with the following packages: argparse, pyranges, pandas
+  combineoverlap: null # requirements:NONE
+  snpisland: gatk.sif # requirements: bedtools
+  topsnp: null # requirements: python with the following packages: argparse, pandas, yaml
+  splitROH: null # requirements: R with the following packages: tidyverse, optparse, yaml
+  fixROH: null # requirements:  R with the following packages: tidyverse, optparse, yaml
+  plots: null # requirements: NONE
+  quarto: quarto.sif #requirements: quarto, R with the following packages: tidyverse, plotly, kableExtra, zoo, DT
+  vcftools: vcftools.sif # requirements: vcftools
+  versions: null # requirements: python with the following packages: argparse, yaml, defaultdict
+
+#setting for bedops process
+bedops:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+#setting for quarto process
+quarto:
+  resources:
+    slurm:
+      memory: 6.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+#setting for mergeversion process
+version:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
+
+#setting for vcftools process
+vcftools:
+  resources:
+    slurm:
+      memory: 2.GB
+      time: "2h"
+      cpus: 2
+    local:
+      memory: 2.GB
+      time: "1h"
+      cpus: 1
